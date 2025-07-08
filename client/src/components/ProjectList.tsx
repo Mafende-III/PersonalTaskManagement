@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Project, ProjectStatus } from '../../../shared/src/types'
 import { projectService } from '../services/project'
-import Button from './ui/Button'
-import Card from './ui/Card'
-import Input from './ui/Input'
+import { Button } from './ui/Button'
+import { Card } from './ui/Card'
+import { Input } from './ui/Input'
 import { FiPlus, FiSearch, FiFolder, FiEdit, FiTrash2 } from 'react-icons/fi'
 
 interface ProjectListProps {

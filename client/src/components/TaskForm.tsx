@@ -13,8 +13,8 @@ interface TaskFormData {
 }
 import { taskService } from '../services/task'
 import { projectService } from '../services/project'
-import Button from './ui/Button'
-import Input from './ui/Input'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import { FiX, FiSave, FiPlus } from 'react-icons/fi'
 
 interface TaskFormProps {

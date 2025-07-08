@@ -14,6 +14,20 @@ export interface User {
   verified: boolean
   createdAt: Date
   updatedAt: Date
+  
+  // New RBAC fields
+  accountStatus?: UserAccountStatus
+  emailVerified?: boolean
+  verifiedAt?: Date
+  departmentId?: string
+  positionId?: string
+  canCreatePersonalProjects?: boolean
+  canCreatePersonalTasks?: boolean
+  personalProjectLimit?: number
+  
+  // Relations
+  department?: Department
+  position?: Position
 }
 
 // Basic enums
@@ -35,6 +49,46 @@ export enum ProjectStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
   ARCHIVED = 'ARCHIVED'
+}
+
+// New RBAC Enums
+export enum UserAccountStatus {
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+  UNASSIGNED = 'UNASSIGNED',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  ARCHIVED = 'ARCHIVED'
+}
+
+export enum ProjectType {
+  PERSONAL = 'PERSONAL',
+  TEAM = 'TEAM'
+}
+
+export enum Visibility {
+  PRIVATE = 'PRIVATE',
+  INTERNAL = 'INTERNAL',
+  PUBLIC = 'PUBLIC'
+}
+
+export enum ProjectRole {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  VIEWER = 'VIEWER'
+}
+
+export enum TaskRole {
+  OWNER = 'OWNER',
+  ASSIGNEE = 'ASSIGNEE',
+  VIEWER = 'VIEWER'
+}
+
+export enum RequestStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  MORE_INFO_NEEDED = 'MORE_INFO_NEEDED'
 }
 
 // Task types
@@ -86,8 +140,15 @@ export interface Project {
   status: ProjectStatus
   createdAt: Date
   updatedAt: Date
-  userId: string
+  userId: string // Keep for backward compatibility
   tasks?: Task[]
+  
+  // New RBAC fields
+  type?: ProjectType
+  visibility?: Visibility
+  creatorId?: string
+  creator?: User
+  teamMembers?: ProjectUser[]
 }
 
 export interface CreateProjectRequest {
@@ -143,4 +204,141 @@ export interface CreateAttachmentRequest {
   mimeType: string
   fileUrl: string
   taskId: string
+}
+
+// New RBAC Types
+export interface Department {
+  id: string
+  name: string
+  description?: string
+  createdAt: Date
+  updatedAt: Date
+  positions?: Position[]
+  users?: User[]
+  accessRequests?: AccessRequest[]
+}
+
+export interface Position {
+  id: string
+  name: string
+  level: number
+  permissions: PositionPermissions
+  createdAt: Date
+  updatedAt: Date
+  departmentId: string
+  department?: Department
+  users?: User[]
+}
+
+export interface ProjectUser {
+  id: string
+  role: ProjectRole
+  assignedAt: Date
+  projectId: string
+  project?: Project
+  userId: string
+  user?: User
+}
+
+export interface TaskUser {
+  id: string
+  role: TaskRole
+  assignedAt: Date
+  taskId: string
+  task?: Task
+  userId: string
+  user?: User
+}
+
+export interface AccessRequest {
+  id: string
+  reason: string
+  supervisorName?: string
+  status: RequestStatus
+  reviewNotes?: string
+  createdAt: Date
+  reviewedAt?: Date
+  userId: string
+  user?: User
+  departmentId: string
+  department?: Department
+  reviewedBy?: string
+  reviewer?: User
+}
+
+// Permission Structure
+export interface PositionPermissions {
+  project: {
+    create: boolean
+    delete: 'own' | 'department' | 'all' | false
+    edit: 'own' | 'assigned' | 'department' | 'all' | false
+    view: 'own' | 'assigned' | 'department' | 'all' | false
+    assignUsers: boolean
+  }
+  task: {
+    create: 'standalone' | 'assigned_project' | 'any_project' | false
+    delete: 'own' | 'assigned' | 'department' | 'all' | false
+    edit: 'own' | 'assigned' | 'department' | 'all' | false
+    createSubtask: 'own' | 'assigned' | false
+  }
+  user: {
+    invite: boolean
+    edit: 'subordinate' | 'department' | 'all' | false
+    viewDetails: 'subordinate' | 'department' | 'all' | false
+  }
+  department: {
+    manage: boolean
+    editHierarchy: boolean
+  }
+}
+
+// Request/Response Types for RBAC
+export interface CreateDepartmentRequest {
+  name: string
+  description?: string
+}
+
+export interface UpdateDepartmentRequest extends Partial<CreateDepartmentRequest> {
+  id: string
+}
+
+export interface CreatePositionRequest {
+  name: string
+  level: number
+  permissions: PositionPermissions
+  departmentId: string
+}
+
+export interface UpdatePositionRequest extends Partial<CreatePositionRequest> {
+  id: string
+}
+
+export interface CreateAccessRequestRequest {
+  reason: string
+  supervisorName?: string
+  departmentId: string
+}
+
+export interface UpdateAccessRequestRequest {
+  id: string
+  status: RequestStatus
+  reviewNotes?: string
+}
+
+export interface AssignUserRequest {
+  userId: string
+  departmentId: string
+  positionId: string
+}
+
+export interface ProjectTeamAssignmentRequest {
+  projectId: string
+  userId: string
+  role: ProjectRole
+}
+
+export interface TaskAssignmentRequest {
+  taskId: string
+  userId: string
+  role: TaskRole
 } 

@@ -54,4 +54,18 @@ node_modules/
 
 # Prisma
 prisma/migrations/
-.env 
+.env
+
+# Documentation files (exclude planning/analysis docs, keep user-facing docs)
+RBAC_ENHANCEMENT_PLAN.md
+HIERARCHY_FLOW_DIAGRAM.md
+IMPLEMENTATION_EXAMPLE.md
+TASK_VISIBILITY_DESIGN.md
+cursor_current_project_status_and_imple.md
+DEVELOPMENT_TASKS.md
+ERROR_LOG.md
+
+# Keep essential user-facing documentation
+!README.md
+!DATABASE_SETUP.md
+!LOCAL_SETUP_GUIDE.md 

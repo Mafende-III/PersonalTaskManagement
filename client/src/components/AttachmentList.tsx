@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Attachment } from '../../../shared/src/types'
 import { attachmentService } from '../services/attachment'
-import Button from './ui/Button'
+import { Button } from './ui/Button'
 import { 
   FiPaperclip, 
   FiUpload, 

@@ -4,8 +4,8 @@ import { Task, TaskStatus, TaskPriority, Project } from '../../../shared/src/typ
 import { taskService } from '../services/task'
 import { projectService } from '../services/project'
 import { TaskCard } from './TaskCard'
-import Button from './ui/Button'
-import Input from './ui/Input'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import { FiPlus, FiSearch } from 'react-icons/fi'
 
 interface TaskListProps {

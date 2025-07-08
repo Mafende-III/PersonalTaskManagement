@@ -1,7 +1,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { cn } from '../../lib/utils'
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   onClick?: () => void
   isActive?: boolean
@@ -16,7 +17,8 @@ const Card: React.FC<CardProps> = ({
   isActive = false,
   className = '',
   padding = 'md',
-  variant = 'default'
+  variant = 'default',
+  ...props
 }) => {
   const paddings = {
     none: '',
@@ -32,13 +34,13 @@ const Card: React.FC<CardProps> = ({
     interactive: 'bg-white border border-gray-200 hover:border-gray-300 cursor-pointer'
   }
 
-  const baseClasses = `
-    rounded-xl transition-all duration-300
-    ${paddings[padding]}
-    ${variants[variant]}
-    ${isActive ? 'ring-2 ring-blue-500 border-blue-500' : ''}
-    ${className}
-  `
+  const baseClasses = cn(
+    'rounded-xl transition-all duration-300',
+    paddings[padding],
+    variants[variant],
+    isActive ? 'ring-2 ring-blue-500 border-blue-500' : '',
+    className
+  )
 
   if (onClick || variant === 'interactive') {
     return (
@@ -57,6 +59,7 @@ const Card: React.FC<CardProps> = ({
             ? '0 10px 15px -3px rgba(59, 130, 246, 0.2)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}
+        {...props}
       >
         {children}
       </motion.div>
@@ -71,10 +74,12 @@ const Card: React.FC<CardProps> = ({
           ? '0 10px 15px -3px rgba(59, 130, 246, 0.2)' 
           : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
       }}
+      {...props}
     >
       {children}
     </div>
   )
 }
 
+export { Card }
 export default Card

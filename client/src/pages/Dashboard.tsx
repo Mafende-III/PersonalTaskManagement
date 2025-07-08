@@ -5,8 +5,8 @@ import {
   FiHome, FiPlus, FiFolder, FiCalendar, FiBarChart, 
   FiSettings, FiLogOut, FiMenu, FiX, FiCheck, FiClock, FiTrendingUp 
 } from 'react-icons/fi'
-import Button from '../components/ui/Button'
-import Card from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
 import Container from '../components/layout/Container'
 import { TaskList } from '../components/TaskList'
 import { ProjectList } from '../components/ProjectList'
@@ -31,6 +31,7 @@ const Dashboard: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [recentActivities, setRecentActivities] = useState<any[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -119,9 +120,28 @@ const Dashboard: React.FC = () => {
     fetchData()
   }, [refreshKey])
 
+  useEffect(() => {
+    checkAdminStatus()
+  }, [])
+
+  const checkAdminStatus = async () => {
+    try {
+      const user = await authService.getCurrentUser()
+      setIsAdmin(user?.position?.name === 'System Administrator')
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
+
   const handleLogout = () => {
     authService.logout()
     navigate('/')
+  }
+
+  const handleSettingsClick = () => {
+    if (isAdmin) {
+      navigate('/admin')
+    }
   }
 
   const handleCreateTask = () => {
@@ -256,7 +276,10 @@ const Dashboard: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 icon={<FiSettings />}
+                onClick={handleSettingsClick}
+                title={isAdmin ? "Admin Panel" : "Settings"}
               >
+                {isAdmin ? "Admin" : ""}
               </Button>
               <Button
                 variant="outline"

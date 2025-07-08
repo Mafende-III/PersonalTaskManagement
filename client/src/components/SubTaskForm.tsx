@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Task, TaskStatus, TaskPriority } from '../../../shared/src/types'
 import { taskService } from '../services/task'
-import Button from './ui/Button'
-import Input from './ui/Input'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import { FiX, FiSave } from 'react-icons/fi'
 
 interface SubTaskFormProps {

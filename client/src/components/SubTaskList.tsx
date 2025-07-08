@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Task, TaskStatus } from '../../../shared/src/types'
 import { taskService } from '../services/task'
-import Button from './ui/Button'
+import { Button } from './ui/Button'
 import { FiPlus, FiCheck, FiClock, FiCircle, FiChevronDown, FiChevronRight } from 'react-icons/fi'
 
 interface SubTaskListProps {

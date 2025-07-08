@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { db } from '../utils/db'
 import { hashPassword, comparePassword, generateTokenPair, verifyRefreshToken } from '../utils/auth'
-import { ApiResponse } from '@shared/types'
+import { ApiResponse, UserAccountStatus } from 'task-management-shared'
 
 interface RegisterRequest {
   email: string
@@ -48,18 +48,28 @@ export async function register(req: Request, res: Response) {
     // Hash password
     const hashedPassword = await hashPassword(password)
 
-    // Create user
+    // Create user with self-signup status
     const user = await db.user.create({
       data: {
         email,
         password: hashedPassword,
-        name
+        name,
+        accountStatus: UserAccountStatus.UNASSIGNED, // Start as unassigned
+        emailVerified: false, // Require email verification
+        canCreatePersonalProjects: true,
+        canCreatePersonalTasks: true,
+        personalProjectLimit: 3 // Limited for new users
       },
       select: {
         id: true,
         email: true,
         name: true,
         verified: true,
+        accountStatus: true,
+        emailVerified: true,
+        canCreatePersonalProjects: true,
+        canCreatePersonalTasks: true,
+        personalProjectLimit: true,
         createdAt: true
       }
     })
@@ -104,7 +114,24 @@ export async function login(req: Request, res: Response) {
 
     // Find user
     const user = await db.user.findUnique({
-      where: { email }
+      where: { email },
+      include: {
+        position: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+            permissions: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
     })
 
     if (!user) {
@@ -138,6 +165,15 @@ export async function login(req: Request, res: Response) {
           email: user.email,
           name: user.name,
           verified: user.verified,
+          accountStatus: user.accountStatus,
+          emailVerified: user.emailVerified,
+          canCreatePersonalProjects: user.canCreatePersonalProjects,
+          canCreatePersonalTasks: user.canCreatePersonalTasks,
+          personalProjectLimit: user.personalProjectLimit,
+          departmentId: user.departmentId,
+          positionId: user.positionId,
+          position: user.position,
+          department: user.department,
           createdAt: user.createdAt
         },
         ...tokens
@@ -232,8 +268,30 @@ export async function profile(req: Request, res: Response) {
         email: true,
         name: true,
         verified: true,
+        accountStatus: true,
+        emailVerified: true,
+        departmentId: true,
+        positionId: true,
+        canCreatePersonalProjects: true,
+        canCreatePersonalTasks: true,
+        personalProjectLimit: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        position: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+            permissions: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
       }
     })
 

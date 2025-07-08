@@ -206,6 +206,16 @@ export const authService = {
     return response.data
   },
 
+  async getCurrentUser() {
+    try {
+      const response = await axios.get(`${API_URL}/profile`)
+      return response.data?.data || response.data
+    } catch (error) {
+      console.error('Failed to get current user:', error)
+      return null
+    }
+  },
+
   isAuthenticated(): boolean {
     const token = getToken()
     return token !== null && token !== undefined && token.length > 0

@@ -1,5 +1,5 @@
 {
-  "name": "task-management-client",
+  "name": "client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,16 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.6.2",
-    "framer-motion": "^12.23.0",
+    "@radix-ui/react-switch": "^1.2.5",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "clsx": "^2.1.1",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.525.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^6.20.1",
-    "task-management-shared": "file:../shared"
+    "react-icons": "^5.0.1",
+    "react-router-dom": "^6.21.3",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
@@ -29,8 +31,8 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
   }

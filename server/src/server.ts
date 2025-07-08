@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -8,6 +9,7 @@ import taskRoutes from './routes/task'
 import projectRoutes from './routes/project'
 import commentRoutes from './routes/comment'
 import attachmentRoutes from './routes/attachment'
+import adminRoutes from './routes/admin'
 
 // Load environment variables
 dotenv.config()
@@ -52,6 +54,9 @@ app.use('/api/comments', commentRoutes)
 
 // Attachment routes
 app.use('/api/attachments', attachmentRoutes)
+
+// Admin routes
+app.use('/api/admin', adminRoutes)
 
 // Start server
 async function startServer() {

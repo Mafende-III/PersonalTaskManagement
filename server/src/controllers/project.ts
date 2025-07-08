@@ -1,14 +1,16 @@
 import { Request, Response } from 'express'
 import { z } from 'zod'
 import { db as prisma } from '../utils/db'
-import { CreateProjectRequest, UpdateProjectRequest, ProjectStatus } from 'task-management-shared'
+import { CreateProjectRequest, UpdateProjectRequest, ProjectStatus, ProjectType, Visibility, UserAccountStatus } from 'task-management-shared'
 
 // Validation schemas
 const createProjectSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   description: z.string().optional(),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format').optional(),
-  status: z.nativeEnum(ProjectStatus).optional()
+  status: z.nativeEnum(ProjectStatus).optional(),
+  type: z.nativeEnum(ProjectType).optional(),
+  visibility: z.nativeEnum(Visibility).optional()
 })
 
 const updateProjectSchema = z.object({
@@ -27,6 +29,12 @@ export const projectController = {
 
       const whereClause: any = { userId }
       if (status) whereClause.status = status
+
+      // For unassigned users, only show personal projects
+      const accountStatus = (req.user as any)?.accountStatus
+      if (accountStatus === UserAccountStatus.UNASSIGNED) {
+        whereClause.type = ProjectType.PERSONAL
+      }
 
       const projects = await prisma.project.findMany({
         where: whereClause,
@@ -108,7 +116,22 @@ export const projectController = {
   async createProject(req: Request, res: Response) {
     try {
       const userId = req.user!.id
+      const accountStatus = (req.user as any)?.accountStatus
       const validatedData = createProjectSchema.parse(req.body)
+
+      // Determine project type based on user status and request
+      let projectType = validatedData.type || ProjectType.PERSONAL
+      
+      // Unassigned users can only create personal projects
+      if (accountStatus === UserAccountStatus.UNASSIGNED) {
+        if (validatedData.type === ProjectType.TEAM) {
+          return res.status(403).json({
+            success: false,
+            error: 'Unassigned users can only create personal projects. Request department access for team projects.'
+          })
+        }
+        projectType = ProjectType.PERSONAL
+      }
 
       const project = await prisma.project.create({
         data: {
@@ -116,7 +139,10 @@ export const projectController = {
           description: validatedData.description,
           color: validatedData.color || '#3B82F6',
           status: validatedData.status || ProjectStatus.ACTIVE,
-          userId
+          type: projectType,
+          visibility: validatedData.visibility || Visibility.PRIVATE,
+          userId,
+          creatorId: userId
         },
         include: {
           _count: {

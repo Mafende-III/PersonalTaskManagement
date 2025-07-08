@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Comment } from '../../../shared/src/types'
 import { commentService } from '../services/comment'
-import Button from './ui/Button'
+import { Button } from './ui/Button'
 import { FiMessageCircle, FiEdit2, FiTrash2, FiSend } from 'react-icons/fi'
 
 interface CommentListProps {

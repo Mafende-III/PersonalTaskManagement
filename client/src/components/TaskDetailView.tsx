@@ -6,8 +6,8 @@ import { SubTaskList } from './SubTaskList'
 import { CommentList } from './CommentList'
 import { AttachmentList } from './AttachmentList'
 import { SubTaskForm } from './SubTaskForm'
-import Button from './ui/Button'
-import Input from './ui/Input'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
 import { 
   FiX, 
   FiEdit2, 
