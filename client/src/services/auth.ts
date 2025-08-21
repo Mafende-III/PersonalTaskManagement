@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { API_URL } from '../config/api'
 
-const AUTH_API_URL = `${API_URL}/auth`
+const AUTH_API_URL: string = `${API_URL}/auth`
 
 // Configure axios defaults
 axios.defaults.headers.common['Content-Type'] = 'application/json'

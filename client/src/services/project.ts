@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Project, CreateProjectRequest, UpdateProjectRequest, ApiResponse } from '../../../shared/src/types'
 import { API_URL } from '../config/api'
 
-const PROJECT_API_URL = `${PROJECT_API_URL}/projects`
+const PROJECT_API_URL: string = `${API_URL}/projects`
 
 export const projectService = {
   async getAllProjects(params?: {

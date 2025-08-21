@@ -1,5 +1,5 @@
 // API Configuration
-const getApiUrl = () => {
+const getApiUrl = (): string => {
   // In production, use relative URLs (same origin)
   if (import.meta.env.PROD) {
     return ''
@@ -9,5 +9,5 @@ const getApiUrl = () => {
   return import.meta.env.VITE_API_URL || 'http://localhost:5002'
 }
 
-export const API_BASE_URL = getApiUrl()
-export const API_URL = `${API_BASE_URL}/api`
+export const API_BASE_URL: string = getApiUrl()
+export const API_URL: string = `${API_BASE_URL}/api`

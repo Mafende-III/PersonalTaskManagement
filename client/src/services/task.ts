@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Task, CreateTaskRequest, UpdateTaskRequest, ApiResponse } from '../../../shared/src/types'
 import { API_URL } from '../config/api'
 
-const TASK_API_URL = `${TASK_API_URL}/tasks`
+const TASK_API_URL: string = `${API_URL}/tasks`
 
 export const taskService = {
   async getAllTasks(params?: {

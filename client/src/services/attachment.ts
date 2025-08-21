@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Attachment, CreateAttachmentRequest } from '../../../shared/src/types'
 import { API_URL } from '../config/api'
 
-const ATTACHMENT_API_URL = `${ATTACHMENT_API_URL}/attachments`
+const ATTACHMENT_API_URL: string = `${API_URL}/attachments`
 
 export const attachmentService = {
   async getTaskAttachments(taskId: string): Promise<Attachment[]> {

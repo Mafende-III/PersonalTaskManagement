@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Comment, CreateCommentRequest, UpdateCommentRequest } from '../../../shared/src/types'
 import { API_URL } from '../config/api'
 
-const COMMENT_API_URL = `${COMMENT_API_URL}/comments`
+const COMMENT_API_URL: string = `${API_URL}/comments`
 
 export const commentService = {
   async getTaskComments(taskId: string): Promise<Comment[]> {
