@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+
+# Build outputs
+/client/dist/
+/server/dist/
+/shared/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Prisma
+prisma/migrations/
+.env
+
+# Documentation files (exclude planning/analysis docs, keep user-facing docs)
+RBAC_ENHANCEMENT_PLAN.md
+HIERARCHY_FLOW_DIAGRAM.md
+IMPLEMENTATION_EXAMPLE.md
+TASK_VISIBILITY_DESIGN.md
+cursor_current_project_status_and_imple.md
+DEVELOPMENT_TASKS.md
+ERROR_LOG.md
+
+# Keep essential user-facing documentation
+!README.md
+!DATABASE_SETUP.md
+!LOCAL_SETUP_GUIDE.md 

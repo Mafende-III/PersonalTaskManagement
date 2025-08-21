@@ -1,0 +1,67 @@
+{
+  "name": "Personal Task Management",
+  "description": "A comprehensive task and project management application",
+  "icon": "📋",
+  "build": {
+    "buildpack": "dockerfile",
+    "dockerfile": "Dockerfile"
+  },
+  "environment": {
+    "NODE_ENV": "production",
+    "PORT": "5002"
+  },
+  "healthcheck": {
+    "enabled": true,
+    "path": "/health",
+    "port": 5002,
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3,
+    "start_period": 60
+  },
+  "services": {
+    "app": {
+      "image": "personal-task-management",
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "environment": [
+        "NODE_ENV=production",
+        "PORT=5002"
+      ],
+      "ports": [
+        "5002:5002"
+      ],
+      "healthcheck": {
+        "test": ["CMD", "node", "-e", "require('http').get('http://localhost:5002/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3,
+        "start_period": "60s"
+      },
+      "restart": "unless-stopped"
+    },
+    "postgres": {
+      "image": "postgres:16-alpine",
+      "environment": [
+        "POSTGRES_USER=${DB_USER:-taskuser}",
+        "POSTGRES_PASSWORD=${DB_PASSWORD}",
+        "POSTGRES_DB=${DB_NAME:-task_management}"
+      ],
+      "volumes": [
+        "postgres-data:/var/lib/postgresql/data"
+      ],
+      "healthcheck": {
+        "test": ["CMD-SHELL", "pg_isready -U ${DB_USER:-taskuser} -d ${DB_NAME:-task_management}"],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 5
+      },
+      "restart": "unless-stopped"
+    }
+  },
+  "volumes": {
+    "postgres-data": {}
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "personal-task-management",
+  "version": "1.0.0",
+  "description": "A streamlined project and task management web application",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "npm run build:shared && concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "npm run build:shared && npm run build:client && npm run build:server",
+    "build:shared": "cd shared && npm run build",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "node server/dist/server.js",
+    "start:prod": "NODE_ENV=production npm run start",
+    "docker:build": "docker build -t task-management-app .",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "install:all": "npm install && npm run install:client && npm run install:server",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "setup:env": "node generate-env.js",
+    "setup:db": "bash setup-database.sh",
+    "setup:complete": "npm run setup:env && npm run setup:db && cd server && npm run db:push && npm run db:generate",
+    "db:migrate": "cd server && npx prisma migrate deploy",
+    "db:generate": "cd server && npx prisma generate"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "",
+  "license": "MIT"
+} 

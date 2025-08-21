@@ -1,0 +1,324 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // New RBAC fields (optional for backward compatibility)
+  accountStatus            UserAccountStatus @default(ACTIVE)
+  emailVerified           Boolean           @default(false)
+  verifiedAt              DateTime?
+  departmentId            String?
+  positionId              String?
+  canCreatePersonalProjects Boolean          @default(true)
+  canCreatePersonalTasks   Boolean          @default(true)
+  personalProjectLimit     Int              @default(3)
+
+  // Relations (existing)
+  projects    Project[]
+  tasks       Task[]
+  comments    Comment[]
+  attachments Attachment[]
+
+  // New RBAC relations
+  department         Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  position           Position?     @relation(fields: [positionId], references: [id], onDelete: SetNull)
+  createdProjects    Project[]     @relation("ProjectCreator")
+  assignedProjects   ProjectUser[]
+  createdTasks       Task[]        @relation("TaskCreator")  
+  assignedTasks      TaskUser[]
+  accessRequests     AccessRequest[]
+  reviewedRequests   AccessRequest[] @relation("RequestReviewer")
+
+  // Add indexes for performance
+  @@index([departmentId])
+  @@index([positionId])
+  @@index([accountStatus])
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String?  @default("#3B82F6")
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // New RBAC fields
+  type        ProjectType @default(TEAM)
+  visibility  Visibility  @default(PRIVATE)
+
+  // Relations (existing - maintain backward compatibility)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  // New RBAC relations (optional for migration)
+  creatorId   String?
+  creator     User?        @relation("ProjectCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  teamMembers ProjectUser[]
+
+  // Indexes
+  @@index([userId])
+  @@index([creatorId])
+  @@index([type])
+  @@index([visibility])
+  @@map("projects")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  position    Int        @default(0)
+  tags        String[]   @default([])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations (existing - maintain backward compatibility)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  // Self-referential for sub-tasks
+  parentTaskId String?
+  parentTask   Task?      @relation("TaskSubTasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subTasks     Task[]     @relation("TaskSubTasks")
+  
+  // Related entities
+  comments     Comment[]
+  attachments  Attachment[]
+
+  // New RBAC relations (optional for migration)
+  creatorId   String?
+  creator     User?      @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  assignees   TaskUser[]
+
+  // Indexes
+  @@index([userId])
+  @@index([creatorId])
+  @@index([projectId])
+  @@index([parentTaskId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  fileName     String
+  fileSize     Int
+  mimeType     String
+  fileUrl      String   // URL to stored file
+  createdAt    DateTime @default(now())
+
+  // Relations
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId       String
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("attachments")
+}
+
+// New RBAC Models
+model Department {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  positions   Position[]
+  users       User[]
+  accessRequests AccessRequest[]
+
+  @@map("departments")
+}
+
+model Position {
+  id           String     @id @default(cuid())
+  name         String
+  level        Int        // Hierarchy level (1 = highest)
+  permissions  Json       // Flexible permission structure
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  users        User[]
+
+  // Indexes
+  @@index([departmentId])
+  @@index([level])
+  @@map("positions")
+}
+
+model ProjectUser {
+  id         String      @id @default(cuid())
+  role       ProjectRole @default(MEMBER)
+  assignedAt DateTime    @default(now())
+
+  // Relations
+  projectId  String
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Unique constraint
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@map("project_users")
+}
+
+model TaskUser {
+  id         String   @id @default(cuid())
+  role       TaskRole @default(ASSIGNEE)
+  assignedAt DateTime @default(now())
+
+  // Relations
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Unique constraint
+  @@unique([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+  @@map("task_users")
+}
+
+model AccessRequest {
+  id             String        @id @default(cuid())
+  reason         String
+  supervisorName String?
+  status         RequestStatus @default(PENDING)
+  reviewNotes    String?
+  createdAt      DateTime      @default(now())
+  reviewedAt     DateTime?
+
+  // Relations
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  reviewedBy   String?
+  reviewer     User?      @relation("RequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([userId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("access_requests")
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// New RBAC Enums
+enum UserAccountStatus {
+  PENDING_VERIFICATION
+  UNASSIGNED
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum ProjectType {
+  PERSONAL
+  TEAM
+}
+
+enum Visibility {
+  PRIVATE
+  INTERNAL
+  PUBLIC
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TaskRole {
+  OWNER
+  ASSIGNEE
+  VIEWER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MORE_INFO_NEEDED
+} 
